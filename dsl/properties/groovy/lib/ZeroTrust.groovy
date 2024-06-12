@@ -162,9 +162,8 @@ class ZeroTrust extends FlowPlugin {
         long nowSeconds = System.currentTimeMillis()/1000
         long expSeconds = nowSeconds + tokenLifeTime.toInteger()
 
-        String jobname = getCDROJobName()
 
-        Map<String, Object> updateClaims = [ "job_name": jobname, "iss": issuer, iat: nowSeconds, exp: expSeconds]
+        Map<String, Object> updateClaims = ["iss": issuer, iat: nowSeconds, exp: expSeconds]
         fullClaims.putAll(updateClaims)
         log.info "Claims: ${fullClaims}"
 
@@ -220,41 +219,6 @@ class ZeroTrust extends FlowPlugin {
         log.info("step UpdateCdroCredentialThroughJwtRequest has been finished")
     }
 
-    private String getCDROJobName() {
-        //get Release name
-        String jobname = ""
-        try {
-            jobname = FlowAPI.getFlowProperty("/myPipelineRuntime/releaseName")
-        } catch (Exception e) {
-            log.info "getCDROJobName：Failed to get release name"
-        }
-        if (! jobname) {
-            //get Pipeline Name
-            try {
-                jobname = FlowAPI.getFlowProperty("/myPipelineRuntime/pipelineName")
-            } catch (Exception e) {
-                log.info "getCDROJobName：Failed to get pipeline name"
-            }
-            if (! jobname) {
-                // get call procedure name
-                try {
-                    jobname = FlowAPI.getFlowProperty("/myParent/procedureName")
-                } catch (Exception e) {
-                    log.info "getCDROJobName：Failed to get parent procedure name"
-                }
-                if (! jobname) {
-                    try {
-                        jobname = FlowAPI.getFlowProperty("/myJob/procedureName")
-                    } catch (Exception e) {
-                        log.info "getCDROJobName：Failed to get procedure name"
-                    }
-                }
-            }
-        }
-        log.info "jobname: ${jobname}"
-        return jobname
-    }
-
 /**
     * issueJwtAndStoreInProperty - IssueJwtAndStoreInProperty/IssueJwtAndStoreInProperty
     * Add your code into this method and it will be called when the step runs
@@ -285,10 +249,7 @@ class ZeroTrust extends FlowPlugin {
         long nowSeconds = System.currentTimeMillis()/1000
         long expSeconds = nowSeconds + tokenLifeTime.toInteger()
 
-        //get release name
-        def jobname = getCDROJobName()
-
-        Map<String, Object> updateClaims = [ "job_name": jobname, "iss": issuer, iat: nowSeconds, exp: expSeconds]
+        Map<String, Object> updateClaims = [iss: issuer, iat: nowSeconds, exp: expSeconds]
         fullClaims.putAll(updateClaims)
         log.info "Claims: ${fullClaims}"
 
@@ -337,10 +298,7 @@ class ZeroTrust extends FlowPlugin {
         long nowSeconds = System.currentTimeMillis()/1000
         long expSeconds = nowSeconds + tokenLifeTime.toInteger()
 
-        //get release name
-        def jobname = getCDROJobName()
-
-        Map<String, Object> updateClaims = [ jobname: jobname, iss: issuer, iat: nowSeconds, exp: expSeconds]
+        Map<String, Object> updateClaims = [ iss: issuer, iat: nowSeconds, exp: expSeconds]
         fullClaims.putAll(updateClaims)
         log.info "Claims: ${fullClaims}"
 
