@@ -1,0 +1,192 @@
+pluginInfo:
+  # This is default sample specification
+  # Feel free to change it
+  # Call pdk showdoc pluginspec to see the list of available fields and their description
+  pluginName: 'EC-ZeroTrust'
+  version: '1.0.0'
+  description: 'enable JWT authentication for Zero Trust implementation'
+  author: 'Shaohua Wen'
+  supportUrl: 'none'
+  category: 'Utilities'
+  shell: 'ec-groovy'
+
+# Plugin configuration description
+configuration:
+  # This is a shell used for checking connection
+  shell: 'ec-groovy'
+  # A script for checking connection will be generated
+  checkConnection: 'true'
+  # A set of fields will be added to process debug level in the configuration
+  hasDebugLevel: true
+  parameters:
+  -
+    name: config
+    documentation: The name for the created configuration
+    required: true
+    type: entry
+    label: Configuration Name
+  -
+    name: desc
+    documentation: Description for the configuration
+    required: false
+    type: entry
+    label: Description
+  -
+    name: endpoint
+    documentation: Hashicorp vault endpoint to connect to. e.g. https://vault.swen.aws.ps.beescloud.com
+    required: true
+    type: entry
+    label: Endpoint
+  -
+    name: role
+    documentation: role to use for jwt authentication
+    required: true
+    type: entry
+    label: Role
+  - name: provider
+    documentation: Provider of JWT token.
+    required: true
+    value: jwt
+    type: entry
+    label: Provider
+  - name: issuer
+    documentation: The issuer of the JWT token, e.g. https://cd.gettingstarted.swen.aws.ps.beescloud.com/myProject
+    required: true
+    value: EC-ZeroTust
+    type: entry
+    label: Issuer
+  - name: customClaims
+    documentation: JSON claims to build the JWT payload
+    required: true
+    value: '{"sub":"xhesi"}'
+    type: textarea
+    label: Custom Claims
+  - name: testConnectionClaims
+    documentation: JSON claims to build the JWT payload for test connection
+    required: true
+    value: '{"sub":"xhesi"}'
+    type: textarea
+    label: Test Connection Claims
+  - name: tokenLifeTime
+    documentation: The lifetime of the JWT token in seconds
+    required: true
+    value: 1800
+    type: entry
+    label: Token Lifetime
+  -
+    name: credential
+    documentation: JWT encryption key
+    required: true
+    type: credential
+    label: JWT Encryption Key
+    credentialType: key
+  -
+    name: algorithm
+    documentation: The algorithm to use for JWT token generation
+    required: true
+    type: select
+    label: JWT Algorithm
+    options:
+      - name: HS256
+        value: HS256
+      - name: HS384
+        value: HS384
+      - name: HS512
+        value: HS512
+      - name: RS256
+        value: RS256
+      - name: RS384
+        value: RS384
+      - name: RS512
+        value: RS512
+      - name: ES256
+        value: ES256
+      - name: ES384
+        value: ES384
+      - name: ES512
+        value: ES512
+      - name: PS256
+        value: PS256
+      - name: PS384
+        value: PS384
+      - name: PS512
+        value: PS512
+      - name: EdDSA
+        value: EdDSA
+  -
+    name: secret_mount_path
+    documentation: The path to the KV mount containing the secret to read, such as secret.
+    required: true
+    type: entry
+    label: Secret mount path
+  -
+    name: namespace
+    documentation: The namespace to use for the secret. e.g. ns1/ns2
+    required: false
+    type: entry
+    label: Namespace
+
+procedures:
+-
+  name: 'UpdateCdroCredentialThroughJwtRequest'
+  description: 'Update CDRO Credential with Zero Trust JWT token authentication process'
+  hasConfig: true
+  parameters:
+  -
+    name: credentialProjectName
+    documentation: The project name of the CDRO credential to be updated.
+    required: true
+    type: entry
+    label: Credential ProjectName
+  - name: credentialName
+    documentation: The name of the CDRO credential to be updated.
+    required: true
+    type: entry
+    label: Credential Name
+  - name: secretPath
+    documentation: The path to the secret to read, such as secret/data/my-secret.
+    required: true
+    type: entry
+    label: Secret Path
+
+-
+  name: 'getCdroCredentialAndRunStep'
+  description: 'Get CDRO Credential with Zero Trust JWT token authentication process, and pass the credential to the next step'
+  hasConfig: true
+  parameters:
+    - name: secretPath
+      documentation: The path to the secret to read, such as secret/data/my-secret.
+      required: true
+      type: entry
+      label: Secret Path
+    - name: shellOfStepCommandToRun
+      documentation: |
+        The shell of the command to run after getting the credential
+        (note: the credential name will always be zt_credential), e.g. 
+        import com.electriccloud.client.groovy.ElectricFlow
+        import groovy.json.JsonSlurper
+        ElectricFlow ef = new ElectricFlow()
+        def password=ef.getFullCredential(credentialName: "zt_credential").credential.password
+        def secretMap = new JsonSlurper().parseText(password)
+      required: false
+      value: ec-groovy
+      type: entry
+      label: Shell of Command To Run
+    - name: stepCommandToRun
+      documentation: The command to run after getting the credential
+      required: true
+      type: textarea
+      label: Command To Run
+
+-
+  name: 'IssueJwtAndStoreInProperty'
+  description: 'Issue JWT token and store in a property for later usage'
+  hasConfig: true
+  parameters:
+    -
+      name: propertyPath
+      documentation: The path of the CDRO property to store the JWT token.
+      required: true
+      value: /myPipelineRuntime/jwtToken
+      type: entry
+      label: Property Path
