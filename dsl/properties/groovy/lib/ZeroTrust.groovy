@@ -74,10 +74,17 @@ class ZeroTrust extends FlowPlugin {
             //println "Generated JWT with $algorithm: $jwt"
             println "JWT successfully generated."
 
+            def namespace = config.asMap.get('namespace')
+            log.info "Namespace: ${namespace}"
+
             // Vault config
             VaultConfig vaultConfig = new VaultConfig()
                     .address(endpoint)
-                    .build();
+
+            if(namespace != null && !namespace.isEmpty()) {
+                vaultConfig = vaultConfig.nameSpace(namespace)
+            }
+            vaultConfig = vaultConfig.build()
             final Vault vault = Vault.create(vaultConfig);
             // login using JWT
             def role = config.asMap.get('role')

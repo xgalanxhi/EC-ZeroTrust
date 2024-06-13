@@ -144,7 +144,7 @@ procedures:
     type: entry
     label: Credential Name
   - name: secretPath
-    documentation: The path to the secret to read, such as secret/data/my-secret.
+    documentation: The path to the secret to read, such as data/my-secret (mount is not included).
     required: true
     type: entry
     label: Secret Path
@@ -155,7 +155,7 @@ procedures:
   hasConfig: true
   parameters:
     - name: secretPath
-      documentation: The path to the secret to read, such as secret/data/my-secret.
+      documentation: The path to the secret to read, such as data/my-secret (mount is not included).
       required: true
       type: entry
       label: Secret Path
@@ -179,7 +179,7 @@ procedures:
       label: Command To Run
 
 -
-  name: 'IssueJwtAndStoreInProperty'
+  name: 'issueJwtAndStoreInProperty'
   description: 'Issue JWT token and store in a property for later usage'
   hasConfig: true
   parameters:
