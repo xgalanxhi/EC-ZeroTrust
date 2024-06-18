@@ -6,7 +6,7 @@ EC-ZeroTrust
 
 Plugin version 1.0.0
 
-Revised on Wed Jun 12 10:59:47 ICT 2024
+Revised on Tue Jun 18 13:47:19 ICT 2024
 
 
 * * *
@@ -21,7 +21,7 @@ Contents
 *   [Plugin Procedures](#plugin-procedures)
     *   [UpdateCdroCredentialThroughJwtRequest](#updatecdrocredentialthroughjwtrequest)
     *   [getCdroCredentialAndRunStep](#getcdrocredentialandrunstep)
-    *   [IssueJwtAndStoreInProperty](#issuejwtandstoreinproperty)
+    *   [issueJwtAndStoreInProperty](#issuejwtandstoreinproperty)
 
 ## Overview
 
@@ -64,7 +64,7 @@ Configuration Parameters
 
 ## UpdateCdroCredentialThroughJwtRequest
 
-Update CDRO Credential with Zero Trust JWT token authentication process
+Update CDRO Credential with Zero Trust JWT token authentication process, only support secret that has one key-value pair or two key-value pair with key username and password
 
 ### UpdateCdroCredentialThroughJwtRequest Parameters
 
@@ -73,30 +73,30 @@ Update CDRO Credential with Zero Trust JWT token authentication process
 | **Configuration Name** | Previously defined configuration for the plugin |
 | **credentialProjectName** | The project name of the CDRO credential to be updated. |
 | **credentialName** | The name of the CDRO credential to be updated. |
-| **secretPath** | The path to the secret to read, such as secret/data/my-secret. |
+| **secretPath** | The path to the secret to read, such as data/my-secret (mount is not included). |
 
 
 
 ## getCdroCredentialAndRunStep
 
-Get CDRO Credential with Zero Trust JWT token authentication process, and pass the credential to the next step
+Get secret with Zero Trust JWT token authentication process, and stored it in the password field of a credential parameter as a JSON string, then pass to the next step
 
 ### getCdroCredentialAndRunStep Parameters
 
 | Parameter | Description |
 | --- | --- |
 | **Configuration Name** | Previously defined configuration for the plugin |
-| **secretPath** | The path to the secret to read, such as secret/data/my-secret. |
+| **secretPath** | The path to the secret to read, such as data/my-secret (mount is not included). |
 | shellOfStepCommandToRun | The shell of the command to run after getting the credential<br>(note: the credential name will always be zt_credential), e.g. <br>import com.electriccloud.client.groovy.ElectricFlow<br>import groovy.json.JsonSlurper<br>ElectricFlow ef = new ElectricFlow()<br>def password=ef.getFullCredential(credentialName: "zt_credential").credential.password<br>def secretMap = new JsonSlurper().parseText(password)<br> |
 | **stepCommandToRun** | The command to run after getting the credential |
 
 
 
-## IssueJwtAndStoreInProperty
+## issueJwtAndStoreInProperty
 
 Issue JWT token and store in a property for later usage
 
-### IssueJwtAndStoreInProperty Parameters
+### issueJwtAndStoreInProperty Parameters
 
 | Parameter | Description |
 | --- | --- |

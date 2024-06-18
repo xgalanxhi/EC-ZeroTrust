@@ -33,13 +33,13 @@ configuration:
     label: Description
   -
     name: endpoint
-    documentation: Hashicorp vault endpoint to connect to. e.g. https://vault.swen.aws.ps.beescloud.com
+    documentation: Hashicorp vault endpoint to connect to. e.g. https://vault.swen.aws.ps.beescloud.com, can be referred in custom claims by using "&lt;vault-url&gt;"
     required: true
     type: entry
     label: Endpoint
   -
     name: role
-    documentation: role to use for jwt authentication
+    documentation: role to use for jwt authentication, can be referred in custom claims by using "&lt;role&gt;"
     required: true
     type: entry
     label: Role
@@ -121,7 +121,7 @@ configuration:
     label: Secret mount path
   -
     name: namespace
-    documentation: The namespace to use for the secret. e.g. ns1/ns2
+    documentation: The namespace to use for the secret. e.g. ns1/ns2, can be referred in custom claims by using "&lt;namespace&gt;"
     required: false
     type: entry
     label: Namespace
@@ -129,7 +129,7 @@ configuration:
 procedures:
 -
   name: 'UpdateCdroCredentialThroughJwtRequest'
-  description: 'Update CDRO Credential with Zero Trust JWT token authentication process'
+  description: 'Update CDRO Credential with Zero Trust JWT token authentication process, only support secret that has one key-value pair or two key-value pair with key username and password'
   hasConfig: true
   parameters:
   -
@@ -151,7 +151,7 @@ procedures:
 
 -
   name: 'getCdroCredentialAndRunStep'
-  description: 'Get CDRO Credential with Zero Trust JWT token authentication process, and pass the credential to the next step'
+  description: 'Get secret with Zero Trust JWT token authentication process, and stored it in the password field of a credential parameter as a JSON string, then pass to the next step'
   hasConfig: true
   parameters:
     - name: secretPath

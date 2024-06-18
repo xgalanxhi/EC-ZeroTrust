@@ -10,6 +10,8 @@ import io.github.jopenlibs.vault.response.AuthResponse;
 import io.github.jopenlibs.vault.response.LogicalResponse;
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
+import groovy.yaml.YamlSlurper
+import groovy.yaml.YamlBuilder
 
 import java.security.Key
 import java.security.KeyFactory
@@ -61,6 +63,10 @@ class ZeroTrust extends FlowPlugin {
             def endpoint = config.asMap.get('endpoint')
             def privateKeyString = config.getRequiredCredential("credential").secretValue //private key
             def customClaims = config.asMap.get('testConnectionClaims')
+            def role = config.asMap.get('role')
+            def namespace = config.asMap.get('namespace')
+            log.info "Namespace: ${namespace}"
+
             JsonSlurper jsonSlurper = new JsonSlurper()
             Map<String, Object> fullClaims = jsonSlurper.parseText(customClaims)
 
@@ -69,13 +75,11 @@ class ZeroTrust extends FlowPlugin {
 
             Map<String, Object> updateClaims = [ iss: issuer, iat: nowSeconds, exp: expSeconds]
             fullClaims.putAll(updateClaims)
+            fullClaims = processTemplate(fullClaims, role, namespace, endpoint)
 
             String jwt = createJWT(privateKeyString, algorithm, fullClaims)
             //println "Generated JWT with $algorithm: $jwt"
             println "JWT successfully generated."
-
-            def namespace = config.asMap.get('namespace')
-            log.info "Namespace: ${namespace}"
 
             // Vault config
             VaultConfig vaultConfig = new VaultConfig()
@@ -87,7 +91,6 @@ class ZeroTrust extends FlowPlugin {
             vaultConfig = vaultConfig.build()
             final Vault vault = Vault.create(vaultConfig);
             // login using JWT
-            def role = config.asMap.get('role')
             AuthResponse response = vault.auth().loginByJwt(provider, role, jwt);
             String token = response.getAuthClientToken();
             println "Got token from Vault."
@@ -99,6 +102,12 @@ class ZeroTrust extends FlowPlugin {
             sr.apply()
             throw e
         }
+    }
+
+    private Map<String, Object> processTemplate(Map<String, Object> fullClaims, role, namespace, endpoint) {
+        fullClaims = fullClaims.collectEntries { k, v -> [k, v.toString().isInteger() ? v : v.toString().replace("<role>", role).replace("<namespace>", namespace).replace("<vault-url>", endpoint)] }
+        log.info "Claims: ${fullClaims}"
+        fullClaims
     }
 // === check connection ends ===
 
@@ -162,6 +171,9 @@ class ZeroTrust extends FlowPlugin {
         def privateKeyString = config.getRequiredCredential("credential").secretValue //private key
         def customClaims = config.asMap.get('customClaims')
         def secretPath = p.asMap.get('secretPath')
+        def role = config.asMap.get('role')
+        def namespace = config.asMap.get('namespace')
+        log.info "Namespace: ${namespace}"
 
         JsonSlurper jsonSlurper = new JsonSlurper()
         Map<String, Object> fullClaims = jsonSlurper.parseText(customClaims)
@@ -172,14 +184,11 @@ class ZeroTrust extends FlowPlugin {
 
         Map<String, Object> updateClaims = ["iss": issuer, iat: nowSeconds, exp: expSeconds]
         fullClaims.putAll(updateClaims)
-        log.info "Claims: ${fullClaims}"
+        fullClaims = processTemplate(fullClaims, role, namespace, endpoint)
 
         String jwt = createJWT(privateKeyString, algorithm, fullClaims)
         log.trace  "Generated JWT with $algorithm: $jwt"
         log.info  "JWT successfully generated."
-
-        def namespace = config.asMap.get('namespace')
-        log.info "Namespace: ${namespace}"
 
         // Vault config
         VaultConfig vaultConfig = new VaultConfig()
@@ -191,7 +200,6 @@ class ZeroTrust extends FlowPlugin {
         vaultConfig = vaultConfig.build()
         Vault vault = Vault.create(vaultConfig);
         // login using JWT
-        def role = config.asMap.get('role')
         AuthResponse response = vault.auth().loginByJwt(provider, role, jwt);
         String token = response.getAuthClientToken();
         log.info  "Got token from Vault."
@@ -210,18 +218,35 @@ class ZeroTrust extends FlowPlugin {
         def mount = config.asMap.get('secret_mount_path')
         log.info "Mount: ${mount}"
         def vaultSecretPath = "${mount}/${secretPath}"
-        log. info "vaultSecretPath Path: $vaultSecretPath"
+        log.info "vaultSecretPath Path: $vaultSecretPath"
         LogicalResponse logicalResponse = vault.logical()
                 .read(vaultSecretPath);
 
-        log.trace ("Secret Data: " + logicalResponse.getData())
+        def secretData = logicalResponse.getData()
+        log.trace ("Secret Data: " + secretData)
 
         ElectricFlow ef = FlowAPI.getEc()
         def credentialProjectName = sp.credentialProjectName
         def credentialName = sp.credentialName
-        String password= JsonOutput.toJson(logicalResponse.getData())
 
-        ef.modifyCredential(projectName: credentialProjectName, credentialName: credentialName,  password: password)
+        if(secretData.size() > 2)
+            throw new IllegalArgumentException("The secret contains more than two fields. The secret should contain only username and password fields.")
+        if(secretData.isEmpty())
+            throw new IllegalArgumentException("The secret is empty. The secret should contain username and password fields.")
+
+        def userName="", password=""
+        if(secretData.size() == 1){
+            userName = secretData.keySet().iterator().next()
+            password = secretData.get(userName)
+        }
+
+        if(secretData.size() == 2){
+            userName = secretData.username
+            password = secretData.password
+        }
+        log.trace ("username: $userName password: $password")
+
+        ef.modifyCredential(projectName: credentialProjectName, credentialName: credentialName, userName: userName, password: password)
         log.info ("Credential $credentialName updated successfully")
         log.info("step UpdateCdroCredentialThroughJwtRequest has been finished")
     }
@@ -298,6 +323,8 @@ class ZeroTrust extends FlowPlugin {
         def privateKeyString = config.getRequiredCredential("credential").secretValue //private key
         def customClaims = config.asMap.get('customClaims')
         def secretPath = p.asMap.get('secretPath')
+        def role = config.asMap.get('role')
+        def namespace = config.asMap.get('namespace')
 
         JsonSlurper jsonSlurper = new JsonSlurper()
         Map<String, Object> fullClaims = jsonSlurper.parseText(customClaims)
@@ -307,14 +334,11 @@ class ZeroTrust extends FlowPlugin {
 
         Map<String, Object> updateClaims = [ iss: issuer, iat: nowSeconds, exp: expSeconds]
         fullClaims.putAll(updateClaims)
-        log.info "Claims: ${fullClaims}"
+        fullClaims = processTemplate(fullClaims, role, namespace, endpoint)
 
         String jwt = createJWT(privateKeyString, algorithm, fullClaims)
         log.trace  "Generated JWT with $algorithm: $jwt"
         log.info  "JWT successfully generated."
-
-        def namespace = config.asMap.get('namespace')
-        log.info "Namespace: ${namespace}"
 
         // Vault config
         VaultConfig vaultConfig = new VaultConfig()
@@ -325,8 +349,6 @@ class ZeroTrust extends FlowPlugin {
 
         vaultConfig = vaultConfig.build()
         Vault vault = Vault.create(vaultConfig);
-        // login using JWT
-        def role = config.asMap.get('role')
         AuthResponse response = vault.auth().loginByJwt(provider, role, jwt);
         String token = response.getAuthClientToken();
         log.info  "Got token from Vault."
