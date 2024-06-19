@@ -6,7 +6,7 @@ EC-ZeroTrust
 
 Plugin version 1.0.0
 
-Revised on Tue Jun 18 13:47:19 ICT 2024
+Revised on Wed Jun 19 07:14:05 ICT 2024
 
 
 * * *
@@ -64,7 +64,7 @@ Configuration Parameters
 
 ## UpdateCdroCredentialThroughJwtRequest
 
-Update CDRO Credential with Zero Trust JWT token authentication process, only support secret that has one key-value pair or two key-value pair with key username and password
+Update CDRO Credential with Zero Trust JWT token authentication process, If the secret has one key-value pair, it will set the key as the userName and the value as the password, or if the secret has two key-value pair with key username and password, it will set the value of key username as the username, and set the value of password as password of the credential, or if the secret has more than two key-value pairs, it will store the secret as a JSON string in the password of the credential
 
 ### UpdateCdroCredentialThroughJwtRequest Parameters
 

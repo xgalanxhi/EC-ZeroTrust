@@ -229,20 +229,20 @@ class ZeroTrust extends FlowPlugin {
         def credentialProjectName = sp.credentialProjectName
         def credentialName = sp.credentialName
 
-        if(secretData.size() > 2)
-            throw new IllegalArgumentException("The secret contains more than two fields. The secret should contain only username and password fields.")
         if(secretData.isEmpty())
-            throw new IllegalArgumentException("The secret is empty. The secret should contain username and password fields.")
+            throw new IllegalArgumentException("The secret is empty. Please check the secret path and policy.")
 
         def userName="", password=""
         if(secretData.size() == 1){
             userName = secretData.keySet().iterator().next()
             password = secretData.get(userName)
         }
-
         if(secretData.size() == 2){
             userName = secretData.username
             password = secretData.password
+        }
+        if(secretData.size() > 2){
+            password = "'" + JsonOutput.toJson(secretData) + "'"
         }
         log.trace ("username: $userName password: $password")
 
