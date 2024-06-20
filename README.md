@@ -6,7 +6,7 @@ EC-ZeroTrust
 
 Plugin version 1.0.0
 
-Revised on Wed Jun 19 07:14:05 ICT 2024
+Revised on Thu Jun 20 09:54:54 ICT 2024
 
 
 * * *
@@ -21,6 +21,7 @@ Contents
 *   [Plugin Procedures](#plugin-procedures)
     *   [UpdateCdroCredentialThroughJwtRequest](#updatecdrocredentialthroughjwtrequest)
     *   [getCdroCredentialAndRunStep](#getcdrocredentialandrunstep)
+    *   [getAuthorizedTokenAndRunStep](#getauthorizedtokenandrunstep)
     *   [issueJwtAndStoreInProperty](#issuejwtandstoreinproperty)
 
 ## Overview
@@ -87,6 +88,20 @@ Get secret with Zero Trust JWT token authentication process, and stored it in th
 | --- | --- |
 | **Configuration Name** | Previously defined configuration for the plugin |
 | **secretPath** | The path to the secret to read, such as data/my-secret (mount is not included). |
+| shellOfStepCommandToRun | The shell of the command to run after getting the credential<br>(note: the credential name will always be zt_credential), e.g. <br>import com.electriccloud.client.groovy.ElectricFlow<br>import groovy.json.JsonSlurper<br>ElectricFlow ef = new ElectricFlow()<br>def password=ef.getFullCredential(credentialName: "zt_credential").credential.password<br>def secretMap = new JsonSlurper().parseText(password)<br> |
+| **stepCommandToRun** | The command to run after getting the credential |
+
+
+
+## getAuthorizedTokenAndRunStep
+
+Get authorized token with Zero Trust JWT token authentication process, and stored it in the password field of a credential parameter, then pass to the next step
+
+### getAuthorizedTokenAndRunStep Parameters
+
+| Parameter | Description |
+| --- | --- |
+| **Configuration Name** | Previously defined configuration for the plugin |
 | shellOfStepCommandToRun | The shell of the command to run after getting the credential<br>(note: the credential name will always be zt_credential), e.g. <br>import com.electriccloud.client.groovy.ElectricFlow<br>import groovy.json.JsonSlurper<br>ElectricFlow ef = new ElectricFlow()<br>def password=ef.getFullCredential(credentialName: "zt_credential").credential.password<br>def secretMap = new JsonSlurper().parseText(password)<br> |
 | **stepCommandToRun** | The command to run after getting the credential |
 
