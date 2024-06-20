@@ -393,6 +393,83 @@ class ZeroTrust extends FlowPlugin {
         log.info("step getCdroCredentialAndRunStep has been finished")
     }
 
+/**
+    * getAuthorizedTokenAndRunStep - getAuthorizedTokenAndRunStep/getAuthorizedTokenAndRunStep
+    * Add your code into this method and it will be called when the step runs
+    * @param config (required: true)
+    * @param shellOfStepCommandToRun (required: false)
+    * @param stepCommandToRun (required: true)
+    */
+    def getAuthorizedTokenAndRunStep(StepParameters p, StepResult sr) {
+        // Use this parameters wrapper for convenient access to your parameters
+        GetAuthorizedTokenAndRunStepParameters sp = GetAuthorizedTokenAndRunStepParameters.initParameters(p)
+
+        // Calling logger:
+        log.info p.asMap.get('config')
+        log.info p.asMap.get('shellOfStepCommandToRun')
+        log.info p.asMap.get('stepCommandToRun')
+
+        def config = context.configValues
+        def algorithm =  config.asMap.get('algorithm')
+        def provider = config.asMap.get('provider')
+        def issuer = config.asMap.get('issuer')
+        def tokenLifeTime = config.asMap.get('tokenLifeTime')
+        def endpoint = config.asMap.get('endpoint')
+        def privateKeyString = config.getRequiredCredential("credential").secretValue //private key
+        def customClaims = config.asMap.get('customClaims')
+        def secretPath = p.asMap.get('secretPath')
+        def role = config.asMap.get('role')
+        def namespace = config.asMap.get('namespace')
+
+        JsonSlurper jsonSlurper = new JsonSlurper()
+        Map<String, Object> fullClaims = jsonSlurper.parseText(customClaims)
+
+        long nowSeconds = System.currentTimeMillis()/1000
+        long expSeconds = nowSeconds + tokenLifeTime.toInteger()
+
+        Map<String, Object> updateClaims = [ iss: issuer, iat: nowSeconds, exp: expSeconds]
+        fullClaims.putAll(updateClaims)
+        fullClaims = processTemplate(fullClaims, role, namespace, endpoint)
+
+        String jwt = createJWT(privateKeyString, algorithm, fullClaims)
+        log.trace  "Generated JWT with $algorithm: $jwt"
+        log.info  "JWT successfully generated."
+
+        // Vault config
+        VaultConfig vaultConfig = new VaultConfig()
+                .address(endpoint)
+        if(namespace != null && !namespace.isEmpty()) {
+            vaultConfig = vaultConfig.nameSpace(namespace)
+        }
+
+        vaultConfig = vaultConfig.build()
+        Vault vault = Vault.create(vaultConfig);
+        AuthResponse response = vault.auth().loginByJwt(provider, role, jwt);
+        String token = response.getAuthClientToken();
+        log.info  "Got token from Vault."
+        log.trace  "Vault Token: " + token
+
+        // create dynamic job step and run it with the secret passed as a parameter
+        def shellToRun = sp.shellOfStepCommandToRun ?: ""
+        def commandToRun = sp.stepCommandToRun
+        ElectricFlow ef = FlowAPI.getEc()
+        String password= token
+
+        def arg = new Credential(
+                credentialName: "zt_credential",
+                password:password
+        )
+        ef.createJobStep(
+                jobStepName: "ZeroTrust",
+                shell: shellToRun,
+                command: commandToRun,
+                credentials: [arg]
+        )
+
+        sr.apply()
+        log.info("step getAuthorizedTokenAndRunStep has been finished")
+    }
+
 // === step ends ===
 
 }

@@ -179,6 +179,30 @@ procedures:
       label: Command To Run
 
 -
+  name: 'getAuthorizedTokenAndRunStep'
+  description: 'Get authorized token with Zero Trust JWT token authentication process, and stored it in the password field of a credential parameter, then pass to the next step'
+  hasConfig: true
+  parameters:
+    - name: shellOfStepCommandToRun
+      documentation: |
+        The shell of the command to run after getting the credential
+        (note: the credential name will always be zt_credential), e.g. 
+        import com.electriccloud.client.groovy.ElectricFlow
+        import groovy.json.JsonSlurper
+        ElectricFlow ef = new ElectricFlow()
+        def password=ef.getFullCredential(credentialName: "zt_credential").credential.password
+        def secretMap = new JsonSlurper().parseText(password)
+      required: false
+      value: ec-groovy
+      type: entry
+      label: Shell of Command To Run
+    - name: stepCommandToRun
+      documentation: The command to run after getting the credential
+      required: true
+      type: textarea
+      label: Command To Run
+
+-
   name: 'issueJwtAndStoreInProperty'
   description: 'Issue JWT token and store in a property for later usage'
   hasConfig: true
