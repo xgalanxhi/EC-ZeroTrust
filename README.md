@@ -6,7 +6,7 @@ EC-ZeroTrust
 
 Plugin version 1.0.0
 
-Revised on Thu Jun 20 09:54:54 ICT 2024
+Revised on Fri Jun 21 07:13:07 ICT 2024
 
 
 * * *
@@ -102,7 +102,7 @@ Get authorized token with Zero Trust JWT token authentication process, and store
 | Parameter | Description |
 | --- | --- |
 | **Configuration Name** | Previously defined configuration for the plugin |
-| shellOfStepCommandToRun | The shell of the command to run after getting the credential<br>(note: the credential name will always be zt_credential), e.g. <br>import com.electriccloud.client.groovy.ElectricFlow<br>import groovy.json.JsonSlurper<br>ElectricFlow ef = new ElectricFlow()<br>def password=ef.getFullCredential(credentialName: "zt_credential").credential.password<br>def secretMap = new JsonSlurper().parseText(password)<br> |
+| shellOfStepCommandToRun | The shell of the command to run after getting the credential<br>(note: the credential name will always be zt_credential), e.g. <br>import com.electriccloud.client.groovy.ElectricFlow<br>import groovy.json.JsonSlurper<br>ElectricFlow ef = new ElectricFlow()<br>def token=ef.getFullCredential(credentialName: "zt_credential").credential.password<br> |
 | **stepCommandToRun** | The command to run after getting the credential |
 
 
