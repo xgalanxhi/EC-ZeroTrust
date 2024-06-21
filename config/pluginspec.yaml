@@ -190,8 +190,7 @@ procedures:
         import com.electriccloud.client.groovy.ElectricFlow
         import groovy.json.JsonSlurper
         ElectricFlow ef = new ElectricFlow()
-        def password=ef.getFullCredential(credentialName: "zt_credential").credential.password
-        def secretMap = new JsonSlurper().parseText(password)
+        def token=ef.getFullCredential(credentialName: "zt_credential").credential.password
       required: false
       value: ec-groovy
       type: entry
