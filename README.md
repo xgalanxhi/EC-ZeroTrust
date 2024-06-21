@@ -6,7 +6,7 @@ EC-ZeroTrust
 
 Plugin version 1.0.0
 
-Revised on Fri Jun 21 15:21:56 ICT 2024
+Revised on Fri Jun 21 15:23:44 ICT 2024
 
 
 * * *
@@ -25,7 +25,7 @@ Contents
     *   [issueJwtAndStoreInProperty](#issuejwtandstoreinproperty)
 *   [Use Cases](#use-cases)
     *   [1 provide identification to procedure/pipelines](#1-provide-identification-to-procedure/pipelines)
-    *   [1 provide identification to external applications (e.g. AAP)](#1-provide-identification-to-external-applications-(e.g.-aap))
+    *   [2 provide identification to external applications (e.g. AAP)](#2-provide-identification-to-external-applications-(e.g.-aap))
 *   [Known Issues](#known-issues)
 *   [Change Log](#change-log)
 
@@ -143,7 +143,7 @@ Issue JWT token and store in a property for later usage
 
 ### 1 provide identification to procedure/pipelines
 
-### 1 provide identification to external applications (e.g. AAP)
+### 2 provide identification to external applications (e.g. AAP)
 
 
 
