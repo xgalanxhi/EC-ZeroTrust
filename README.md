@@ -6,7 +6,7 @@ EC-ZeroTrust
 
 Plugin version 1.0.0
 
-Revised on Fri Jun 21 07:13:07 ICT 2024
+Revised on Fri Jun 21 11:24:45 ICT 2024
 
 
 * * *
@@ -53,6 +53,19 @@ Configuration Parameters
 | --- | --- |
 | **Configuration Name** | Unique name for the configuration |
 | Description | Configuration description |
+| **config** | The name for the created configuration |
+| desc | Description for the configuration |
+| **endpoint** | Hashicorp vault endpoint to connect to. e.g. https://vault.swen.aws.ps.beescloud.com, can be referred in custom claims by using "&lt;vault-url&gt;" |
+| **role** | role to use for jwt authentication, can be referred in custom claims by using "&lt;role&gt;" |
+| **provider** | Provider of JWT token. |
+| **issuer** | The issuer of the JWT token, e.g. https://cd.gettingstarted.swen.aws.ps.beescloud.com/myProject |
+| **customClaims** | JSON claims to build the JWT payload |
+| **testConnectionClaims** | JSON claims to build the JWT payload for test connection |
+| **tokenLifeTime** | The lifetime of the JWT token in seconds |
+| **credential** | JWT encryption key |
+| **algorithm** | The algorithm to use for JWT token generation |
+| **secret_mount_path** | The path to the KV mount containing the secret to read, such as secret. |
+| namespace | The namespace to use for the secret. e.g. ns1/ns2, can be referred in custom claims by using "&lt;namespace&gt;" |
 | Check Connection? | If checked, a connection endpoint and credentials will be tested before save. The configuration will not be saved if the test fails. |
 | Debug Level | This option sets debug level for logs. If info is selected, only summary information will be shown, for debug, there will be some debug information and for trace the whole requests and responses will be shown. |
 
@@ -102,7 +115,7 @@ Get authorized token with Zero Trust JWT token authentication process, and store
 | Parameter | Description |
 | --- | --- |
 | **Configuration Name** | Previously defined configuration for the plugin |
-| shellOfStepCommandToRun | The shell of the command to run after getting the credential<br>(note: the credential name will always be zt_credential), e.g. <br>import com.electriccloud.client.groovy.ElectricFlow<br>import groovy.json.JsonSlurper<br>ElectricFlow ef = new ElectricFlow()<br>def token=ef.getFullCredential(credentialName: "zt_credential").credential.password<br> |
+| shellOfStepCommandToRun | The shell of the command to run after getting the credential<br>(note: the credential name will always be zt_credential), e.g. <br>import com.electriccloud.client.groovy.ElectricFlow<br>ElectricFlow ef = new ElectricFlow()<br>def token=ef.getFullCredential(credentialName: "zt_credential").credential.password<br> |
 | **stepCommandToRun** | The command to run after getting the credential |
 
 

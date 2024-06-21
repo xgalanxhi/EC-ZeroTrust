@@ -188,7 +188,6 @@ procedures:
         The shell of the command to run after getting the credential
         (note: the credential name will always be zt_credential), e.g. 
         import com.electriccloud.client.groovy.ElectricFlow
-        import groovy.json.JsonSlurper
         ElectricFlow ef = new ElectricFlow()
         def token=ef.getFullCredential(credentialName: "zt_credential").credential.password
       required: false
