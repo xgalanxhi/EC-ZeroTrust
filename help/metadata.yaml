@@ -1,0 +1,11 @@
+useCases:
+  - name: 1 provide identification to procedure/pipelines
+    file: usecase1.md
+  - name: 2 provide identification to external applications (e.g. AAP)
+    file: usecase2.md
+
+knownIssues:
+  - OIDC Discovery or JWKS is not supported yet. Now supports static certificate only
+
+changelogs:
+  - 1.0 initial release

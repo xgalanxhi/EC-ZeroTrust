@@ -6,7 +6,7 @@ EC-ZeroTrust
 
 Plugin version 1.0.0
 
-Revised on Fri Jun 21 11:24:45 ICT 2024
+Revised on Fri Jun 21 15:21:56 ICT 2024
 
 
 * * *
@@ -23,6 +23,11 @@ Contents
     *   [getCdroCredentialAndRunStep](#getcdrocredentialandrunstep)
     *   [getAuthorizedTokenAndRunStep](#getauthorizedtokenandrunstep)
     *   [issueJwtAndStoreInProperty](#issuejwtandstoreinproperty)
+*   [Use Cases](#use-cases)
+    *   [1 provide identification to procedure/pipelines](#1-provide-identification-to-procedure/pipelines)
+    *   [1 provide identification to external applications (e.g. AAP)](#1-provide-identification-to-external-applications-(e.g.-aap))
+*   [Known Issues](#known-issues)
+*   [Change Log](#change-log)
 
 ## Overview
 
@@ -130,3 +135,27 @@ Issue JWT token and store in a property for later usage
 | --- | --- |
 | **Configuration Name** | Previously defined configuration for the plugin |
 | **propertyPath** | The path of the CDRO property to store the JWT token. |
+
+
+
+## Use Cases
+
+
+### 1 provide identification to procedure/pipelines
+
+### 1 provide identification to external applications (e.g. AAP)
+
+
+
+
+## Known Issues
+
+
+*   OIDC Discovery or JWKS is not supported yet. Now supports static certificate only
+
+
+
+## Change Log
+
+
+*   1.0 initial release
