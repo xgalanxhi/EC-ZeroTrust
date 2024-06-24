@@ -25,7 +25,7 @@ class GetCdroCredentialAndRunStepParameters {
         parameters.secretPath = secretPath
 
         def shellOfStepCommandToRun = sp.getParameter('shellOfStepCommandToRun').value
-        parameters.shellOfStepCommandToRun = shellOfStepCommandToRun  ?: 'ec-groovy'
+        parameters.shellOfStepCommandToRun = shellOfStepCommandToRun
 
         def stepCommandToRun = sp.getRequiredParameter('stepCommandToRun').value
         parameters.stepCommandToRun = stepCommandToRun
@@ -33,4 +33,4 @@ class GetCdroCredentialAndRunStepParameters {
         return parameters
     }
 }
-// DO NOT EDIT THIS BLOCK ABOVE ^^^=== Parameters ends, checksum: 08bee426d50b5e1c7be5a1fe46ee6eed ===
+// DO NOT EDIT THIS BLOCK ABOVE ^^^=== Parameters ends, checksum: 6b1f5302fc5e128edf4573623aacb3c2 ===

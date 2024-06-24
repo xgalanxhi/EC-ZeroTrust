@@ -6,7 +6,7 @@ EC-ZeroTrust
 
 Plugin version 1.0.0
 
-Revised on Fri Jun 21 15:23:44 ICT 2024
+Revised on Mon Jun 24 16:28:10 ICT 2024
 
 
 * * *
@@ -106,7 +106,7 @@ Get secret with Zero Trust JWT token authentication process, and stored it in th
 | --- | --- |
 | **Configuration Name** | Previously defined configuration for the plugin |
 | **secretPath** | The path to the secret to read, such as data/my-secret (mount is not included). |
-| shellOfStepCommandToRun | The shell of the command to run after getting the credential<br>(note: the credential name will always be zt_credential), e.g. <br>import com.electriccloud.client.groovy.ElectricFlow<br>import groovy.json.JsonSlurper<br>ElectricFlow ef = new ElectricFlow()<br>def password=ef.getFullCredential(credentialName: "zt_credential").credential.password<br>def secretMap = new JsonSlurper().parseText(password)<br> |
+| shellOfStepCommandToRun | The shell of the command to run after getting the credential, e.g. ec-groovy, default is empty<br>(note: the credential name will always be zt_credential), e.g. <br>import com.electriccloud.client.groovy.ElectricFlow<br>import groovy.json.JsonSlurper<br>ElectricFlow ef = new ElectricFlow()<br>def password=ef.getFullCredential(credentialName: "zt_credential").credential.password<br>def secretMap = new JsonSlurper().parseText(password)<br> |
 | **stepCommandToRun** | The command to run after getting the credential |
 
 
@@ -120,7 +120,7 @@ Get authorized token with Zero Trust JWT token authentication process, and store
 | Parameter | Description |
 | --- | --- |
 | **Configuration Name** | Previously defined configuration for the plugin |
-| shellOfStepCommandToRun | The shell of the command to run after getting the credential<br>(note: the credential name will always be zt_credential), e.g. <br>import com.electriccloud.client.groovy.ElectricFlow<br>ElectricFlow ef = new ElectricFlow()<br>def token=ef.getFullCredential(credentialName: "zt_credential").credential.password<br> |
+| shellOfStepCommandToRun | The shell of the command to run after getting the credential, e.g. ec-groovy, default is empty<br>(note: the credential name will always be zt_credential), e.g. <br>import com.electriccloud.client.groovy.ElectricFlow<br>ElectricFlow ef = new ElectricFlow()<br>def token=ef.getFullCredential(credentialName: "zt_credential").credential.password<br> |
 | **stepCommandToRun** | The command to run after getting the credential |
 
 

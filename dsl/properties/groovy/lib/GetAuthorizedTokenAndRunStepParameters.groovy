@@ -18,7 +18,7 @@ class GetAuthorizedTokenAndRunStepParameters {
         GetAuthorizedTokenAndRunStepParameters parameters = new GetAuthorizedTokenAndRunStepParameters()
 
         def shellOfStepCommandToRun = sp.getParameter('shellOfStepCommandToRun').value
-        parameters.shellOfStepCommandToRun = shellOfStepCommandToRun  ?: 'ec-groovy'
+        parameters.shellOfStepCommandToRun = shellOfStepCommandToRun
 
         def stepCommandToRun = sp.getRequiredParameter('stepCommandToRun').value
         parameters.stepCommandToRun = stepCommandToRun
@@ -26,4 +26,4 @@ class GetAuthorizedTokenAndRunStepParameters {
         return parameters
     }
 }
-// DO NOT EDIT THIS BLOCK ABOVE ^^^=== Parameters ends, checksum: 9200b0543edee0c06ae041b60b2fd5cf ===
+// DO NOT EDIT THIS BLOCK ABOVE ^^^=== Parameters ends, checksum: 7e66bf93900774420145f36907aa30bf ===
