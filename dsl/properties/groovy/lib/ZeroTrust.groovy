@@ -251,10 +251,8 @@ class ZeroTrust extends FlowPlugin {
 
         def config = context.configValues
         def algorithm =  config.asMap.get('algorithm')
-        def provider = config.asMap.get('provider')
         def issuer = config.asMap.get('issuer')
         def tokenLifeTime = config.asMap.get('tokenLifeTime')
-        def endpoint = config.asMap.get('endpoint')
         def privateKeyString = config.getRequiredCredential("credential").secretValue //private key
         def customClaims = config.asMap.get('customClaims')
         JsonSlurper jsonSlurper = new JsonSlurper()
@@ -372,7 +370,6 @@ class ZeroTrust extends FlowPlugin {
         def endpoint = config.asMap.get('endpoint')
         def privateKeyString = config.getRequiredCredential("credential").secretValue //private key
         def customClaims = config.asMap.get('customClaims')
-        def secretPath = p.asMap.get('secretPath')
         def role = config.asMap.get('role')
         def namespace = config.asMap.get('namespace')
 
