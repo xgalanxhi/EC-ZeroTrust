@@ -9,3 +9,4 @@ knownIssues:
 
 changelogs:
   - 1.0 initial release
+  - 1.1 added use case 2.2 for invoke AAP plugin procedure after generate JWT token directly from the plugin procedure

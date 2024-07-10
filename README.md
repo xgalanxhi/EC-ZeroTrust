@@ -4,9 +4,9 @@ EC-ZeroTrust
 
 
 
-Plugin version 1.0.0
+Plugin version 1.1.0
 
-Revised on Mon Jun 24 16:28:10 ICT 2024
+Revised on Wed Jul 10 12:29:03 ICT 2024
 
 
 * * *
@@ -23,6 +23,7 @@ Contents
     *   [getCdroCredentialAndRunStep](#getcdrocredentialandrunstep)
     *   [getAuthorizedTokenAndRunStep](#getauthorizedtokenandrunstep)
     *   [issueJwtAndStoreInProperty](#issuejwtandstoreinproperty)
+    *   [generateJWTForAAPAndLaunchAndWaitJobTemplate](#generatejwtforaapandlaunchandwaitjobtemplate)
 *   [Use Cases](#use-cases)
     *   [1 provide identification to procedure/pipelines](#1-provide-identification-to-procedure/pipelines)
     *   [2 provide identification to external applications (e.g. AAP)](#2-provide-identification-to-external-applications-(e.g.-aap))
@@ -138,6 +139,22 @@ Issue JWT token and store in a property for later usage
 
 
 
+## generateJWTForAAPAndLaunchAndWaitJobTemplate
+
+Issue JWT token for AAP and invoke Launch And Wait Job Template procedure
+
+### generateJWTForAAPAndLaunchAndWaitJobTemplate Parameters
+
+| Parameter | Description |
+| --- | --- |
+| **Configuration Name** | Previously defined configuration for the plugin |
+| **aap_job_name** | The ID or name of the job template to launch. |
+| **aap_plugin_configuration** | The plugin configuration for the EC-AnsibleTower Plugin |
+| checkInterval | Specifies the frequency, in seconds, to check the job status. |
+| dependOnResult | If selected, the job result is synchronized with the Ansible Tower job result. |
+
+
+
 ## Use Cases
 
 
@@ -159,3 +176,4 @@ Issue JWT token and store in a property for later usage
 
 
 *   1.0 initial release
+*   1.1 added use case 2.2 for invoke AAP plugin procedure after generate JWT token directly from the plugin procedure

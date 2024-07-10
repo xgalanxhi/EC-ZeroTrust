@@ -23,6 +23,7 @@ import java.util.Base64
 
 import com.electriccloud.client.groovy.ElectricFlow
 import com.electriccloud.client.groovy.models.Credential
+import com.electriccloud.client.groovy.models.ActualParameter
 
 Security.addProvider(new BouncyCastleProvider())
 
@@ -81,20 +82,7 @@ class ZeroTrust extends FlowPlugin {
             //println "Generated JWT with $algorithm: $jwt"
             println "JWT successfully generated."
 
-            // Vault config
-            VaultConfig vaultConfig = new VaultConfig()
-                    .address(endpoint)
-
-            if(namespace != null && !namespace.isEmpty()) {
-                vaultConfig = vaultConfig.nameSpace(namespace)
-            }
-            vaultConfig = vaultConfig.build()
-            final Vault vault = Vault.create(vaultConfig);
-            // login using JWT
-            AuthResponse response = vault.auth().loginByJwt(provider, role, jwt);
-            String token = response.getAuthClientToken();
-            println "Got token from Vault."
-            //println("Vault Token: " + token);
+            String token = loginAndGetAuthorizedToken(endpoint, namespace, provider, role, jwt)
 
         }  catch (Throwable e) {
             // Set this property to show the error in the UI
@@ -173,6 +161,7 @@ class ZeroTrust extends FlowPlugin {
         def secretPath = p.asMap.get('secretPath')
         def role = config.asMap.get('role')
         def namespace = config.asMap.get('namespace')
+        def mountPath = config.asMap.get('secret_mount_path')
         log.info "Namespace: ${namespace}"
 
         JsonSlurper jsonSlurper = new JsonSlurper()
@@ -190,40 +179,9 @@ class ZeroTrust extends FlowPlugin {
         log.trace  "Generated JWT with $algorithm: $jwt"
         log.info  "JWT successfully generated."
 
-        // Vault config
-        VaultConfig vaultConfig = new VaultConfig()
-                .address(endpoint)
-        if(namespace != null && !namespace.isEmpty()) {
-            vaultConfig = vaultConfig.nameSpace(namespace)
-        }
+        String token = loginAndGetAuthorizedToken(endpoint, namespace, provider, role, jwt)
 
-        vaultConfig = vaultConfig.build()
-        Vault vault = Vault.create(vaultConfig);
-        // login using JWT
-        AuthResponse response = vault.auth().loginByJwt(provider, role, jwt);
-        String token = response.getAuthClientToken();
-        log.info  "Got token from Vault."
-        log.trace  "Vault Token: " + token
-        vaultConfig = new VaultConfig()
-                .address(endpoint)
-                .token(token)
-        if(namespace != null && !namespace.isEmpty()) {
-            vaultConfig = vaultConfig.nameSpace(namespace)
-        }
-
-        vaultConfig = vaultConfig.build()
-
-        vault = vault = Vault.create(vaultConfig)
-        // Read the secret
-        def mount = config.asMap.get('secret_mount_path')
-        log.info "Mount: ${mount}"
-        def vaultSecretPath = "${mount}/${secretPath}"
-        log.info "vaultSecretPath Path: $vaultSecretPath"
-        LogicalResponse logicalResponse = vault.logical()
-                .read(vaultSecretPath);
-
-        def secretData = logicalResponse.getData()
-        log.trace ("Secret Data: " + secretData)
+        def secretData = retrieveSecretData(endpoint, token, namespace, mountPath, secretPath)
 
         ElectricFlow ef = FlowAPI.getEc()
         def credentialProjectName = sp.credentialProjectName
@@ -249,6 +207,30 @@ class ZeroTrust extends FlowPlugin {
         ef.modifyCredential(projectName: credentialProjectName, credentialName: credentialName, userName: userName, password: password)
         log.info ("Credential $credentialName updated successfully")
         log.info("step UpdateCdroCredentialThroughJwtRequest has been finished")
+    }
+
+    private Object retrieveSecretData(endpoint, String token, namespace, mountPath, secretPath) {
+        VaultConfig vaultConfig = new VaultConfig()
+                .address(endpoint)
+                .token(token)
+        if (namespace != null && !namespace.isEmpty()) {
+            vaultConfig = vaultConfig.nameSpace(namespace)
+        }
+
+        vaultConfig = vaultConfig.build()
+
+        Vault vault = Vault.create(vaultConfig)
+        // Read the secret
+
+        log.info "Mount: ${mountPath}"
+        def vaultSecretPath = "${mountPath}/${secretPath}"
+        log.info "vaultSecretPath Path: $vaultSecretPath"
+        LogicalResponse logicalResponse = vault.logical()
+                .read(vaultSecretPath);
+
+        def secretData = logicalResponse.getData()
+        log.trace("Secret Data: " + secretData)
+        return secretData
     }
 
 /**
@@ -325,6 +307,8 @@ class ZeroTrust extends FlowPlugin {
         def secretPath = p.asMap.get('secretPath')
         def role = config.asMap.get('role')
         def namespace = config.asMap.get('namespace')
+        def mountPath = config.asMap.get('secret_mount_path')
+        log.info "Namespace: ${namespace}"
 
         JsonSlurper jsonSlurper = new JsonSlurper()
         Map<String, Object> fullClaims = jsonSlurper.parseText(customClaims)
@@ -340,44 +324,15 @@ class ZeroTrust extends FlowPlugin {
         log.trace  "Generated JWT with $algorithm: $jwt"
         log.info  "JWT successfully generated."
 
-        // Vault config
-        VaultConfig vaultConfig = new VaultConfig()
-                .address(endpoint)
-        if(namespace != null && !namespace.isEmpty()) {
-            vaultConfig = vaultConfig.nameSpace(namespace)
-        }
+        String token = loginAndGetAuthorizedToken(endpoint, namespace, provider, role, jwt)
 
-        vaultConfig = vaultConfig.build()
-        Vault vault = Vault.create(vaultConfig);
-        AuthResponse response = vault.auth().loginByJwt(provider, role, jwt);
-        String token = response.getAuthClientToken();
-        log.info  "Got token from Vault."
-        log.trace  "Vault Token: " + token
-        vaultConfig = new VaultConfig()
-                .address(endpoint)
-                .token(token)
-        if(namespace != null && !namespace.isEmpty()) {
-            vaultConfig = vaultConfig.nameSpace(namespace)
-        }
-
-        vaultConfig = vaultConfig.build()
-
-        vault = vault = Vault.create(vaultConfig)
-        // Read the secret
-        def mount = config.asMap.get('secret_mount_path')
-        log.info "Mount: ${mount}"
-        def vaultSecretPath = "${mount}/${secretPath}"
-        log. info "vaultSecretPath Path: $vaultSecretPath"
-        LogicalResponse logicalResponse = vault.logical()
-                .read(vaultSecretPath);
-
-        log.trace ("Secret Data: " + logicalResponse.getData())
+        def secretData = retrieveSecretData(endpoint, token, namespace, mountPath, secretPath)
 
         // create dynamic job step and run it with the secret passed as a parameter
         def shellToRun = sp.shellOfStepCommandToRun ?: ""
         def commandToRun = sp.stepCommandToRun
         ElectricFlow ef = FlowAPI.getEc()
-        String password= JsonOutput.toJson(logicalResponse.getData())
+        String password= JsonOutput.toJson(secretData)
 
         def arg = new Credential(
                 credentialName: "zt_credential",
@@ -435,19 +390,7 @@ class ZeroTrust extends FlowPlugin {
         log.trace  "Generated JWT with $algorithm: $jwt"
         log.info  "JWT successfully generated."
 
-        // Vault config
-        VaultConfig vaultConfig = new VaultConfig()
-                .address(endpoint)
-        if(namespace != null && !namespace.isEmpty()) {
-            vaultConfig = vaultConfig.nameSpace(namespace)
-        }
-
-        vaultConfig = vaultConfig.build()
-        Vault vault = Vault.create(vaultConfig);
-        AuthResponse response = vault.auth().loginByJwt(provider, role, jwt);
-        String token = response.getAuthClientToken();
-        log.info  "Got token from Vault."
-        log.trace  "Vault Token: " + token
+        String token = loginAndGetAuthorizedToken(endpoint, namespace, provider, role, jwt)
 
         // create dynamic job step and run it with the secret passed as a parameter
         def shellToRun = sp.shellOfStepCommandToRun ?: ""
@@ -468,6 +411,108 @@ class ZeroTrust extends FlowPlugin {
 
         sr.apply()
         log.info("step getAuthorizedTokenAndRunStep has been finished")
+    }
+
+    private String loginAndGetAuthorizedToken(endpoint, namespace, provider, role, String jwt) {
+        // Vault config
+        VaultConfig vaultConfig = new VaultConfig()
+                .address(endpoint)
+        if (namespace != null && !namespace.isEmpty()) {
+            vaultConfig = vaultConfig.nameSpace(namespace)
+        }
+
+        vaultConfig = vaultConfig.build()
+        Vault vault = Vault.create(vaultConfig);
+        AuthResponse response = vault.auth().loginByJwt(provider, role, jwt);
+        String token = response.getAuthClientToken();
+        log.info "Got token from Vault."
+        log.trace "Vault Token: " + token
+        return token
+    }
+
+/**
+    * generateJWTForAAPAndLaunchAndWaitJobTemplate - GenerateJWTForAAPAndLaunchAndWaitJobTemplate/GenerateJWTForAAPAndLaunchAndWaitJobTemplate
+    * Add your code into this method and it will be called when the step runs
+    * @param config (required: true)
+    * @param aap_job_name (required: true)
+    * @param aap_plugin_configuration (required: true)
+    * @param checkInterval (required: false)
+    * @param dependOnResult (required: false)
+    */
+    def generateJWTForAAPAndLaunchAndWaitJobTemplate(StepParameters p, StepResult sr) {
+        // Use this parameters wrapper for convenient access to your parameters
+        GenerateJWTForAAPAndLaunchAndWaitJobTemplateParameters sp = GenerateJWTForAAPAndLaunchAndWaitJobTemplateParameters.initParameters(p)
+
+        // Calling logger:
+        log.info p.asMap.get('config')
+        log.info p.asMap.get('aap_job_name')
+        log.info p.asMap.get('aap_plugin_configuration')
+        log.info p.asMap.get('checkInterval')
+        log.info p.asMap.get('dependOnResult')
+        def aap_job_name = p.asMap.get('aap_job_name')
+
+        def config = context.configValues
+        def algorithm =  config.asMap.get('algorithm')
+        def issuer = config.asMap.get('issuer')
+        def tokenLifeTime = config.asMap.get('tokenLifeTime')
+        def privateKeyString = config.getRequiredCredential("credential").secretValue //private key
+        def customClaims = config.asMap.get('customClaims')
+        JsonSlurper jsonSlurper = new JsonSlurper()
+        Map<String, Object> fullClaims = jsonSlurper.parseText(customClaims)
+
+        long nowSeconds = System.currentTimeMillis()/1000
+        long expSeconds = nowSeconds + tokenLifeTime.toInteger()
+
+        Map<String, Object> updateClaims = [aap_job_name: aap_job_name, iss: issuer, iat: nowSeconds, exp: expSeconds]
+        fullClaims.putAll(updateClaims)
+        log.info "Claims: ${fullClaims}"
+
+        String jwt = createJWT(privateKeyString, algorithm, fullClaims)
+        log.trace  "Generated JWT with $algorithm: $jwt"
+        log.info  "JWT successfully generated."
+
+        // create dynamic job step to run the job template
+        ElectricFlow ef = FlowAPI.getEc()
+        def args = []
+        args.add (
+            new ActualParameter(
+                actualParameterName: "id",
+                value: aap_job_name
+            )
+        )
+        args.add (
+            new ActualParameter(
+                actualParameterName: "config",
+                value: config.asMap.get('aap_plugin_configuration')
+            )
+        )
+        args.add (
+            new ActualParameter(
+                actualParameterName: "body",
+                value: """{ "extra_vars": {"jwt": "$jwt"} }"""
+            )
+        )
+        args.add (
+            new ActualParameter(
+                actualParameterName: "checkInterval",
+                value: config.asMap.get('checkInterval')
+            )
+        )
+        args.add (
+            new ActualParameter(
+                actualParameterName: "dependOnResult",
+                value: config.asMap.get('dependOnResult')
+            )
+        )
+        ef.createJobStep(
+            jobStepName: sp.aap_job_name,
+            subprocedure: 'Launch and Wait a Job Template',
+            subproject: '/plugins/EC-AnsibleTower/project',
+            actualParameters: args
+        )
+
+        sr.apply()
+        log.info("step GenerateJWTForAAPAndLaunchAndWaitJobTemplate has been finished")
     }
 
 // === step ends ===
