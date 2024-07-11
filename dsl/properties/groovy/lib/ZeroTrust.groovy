@@ -50,13 +50,6 @@ class ZeroTrust extends FlowPlugin {
             // Put some checks here
             def config = context.configValues
             log.info(config)
-            // Getting parameters:
-            // log.info config.asMap.get('config')
-            // log.info config.asMap.get('desc')
-            // log.info config.asMap.get('endpoint')
-            // log.info config.asMap.get('role')
-            // log.info config.asMap.get('credential')
-            // assert config.getRequiredCredential("credential").secretValue == "secret"
             def algorithm =  config.asMap.get('algorithm')
             def provider = config.asMap.get('provider')
             def issuer = config.asMap.get('issuer')
@@ -143,12 +136,6 @@ class ZeroTrust extends FlowPlugin {
     def updateCdroCredentialThroughJwtRequest(StepParameters p, StepResult sr) {
         // Use this parameters wrapper for convenient access to your parameters
         UpdateCdroCredentialThroughJwtRequestParameters sp = UpdateCdroCredentialThroughJwtRequestParameters.initParameters(p)
-
-        // Calling logger:
-        log.info p.asMap.get('config')
-        log.info p.asMap.get('customClaims')
-        log.info p.asMap.get('credentialProjectName')
-        log.info p.asMap.get('credentialName')
 
         def config = context.configValues
         def issuer = config.asMap.get('issuer')
@@ -244,11 +231,6 @@ class ZeroTrust extends FlowPlugin {
         // Use this parameters wrapper for convenient access to your parameters
         IssueJwtAndStoreInPropertyParameters sp = IssueJwtAndStoreInPropertyParameters.initParameters(p)
 
-        // Calling logger:
-        log.info p.asMap.get('config')
-        log.info p.asMap.get('customClaims')
-        log.info p.asMap.get('propertyPath')
-
         def config = context.configValues
         def algorithm =  config.asMap.get('algorithm')
         def issuer = config.asMap.get('issuer')
@@ -287,12 +269,6 @@ class ZeroTrust extends FlowPlugin {
     def getCdroCredentialAndRunStep(StepParameters p, StepResult sr) {
         // Use this parameters wrapper for convenient access to your parameters
         GetCdroCredentialAndRunStepParameters sp = GetCdroCredentialAndRunStepParameters.initParameters(p)
-
-        // Calling logger:
-        log.info p.asMap.get('config')
-        log.info p.asMap.get('customClaims')
-        log.info p.asMap.get('stepCommandToRun')
-        log.info p.asMap.get('shellOfStepCommandToRun')
 
         def config = context.configValues
         def algorithm =  config.asMap.get('algorithm')
@@ -356,11 +332,6 @@ class ZeroTrust extends FlowPlugin {
     def getAuthorizedTokenAndRunStep(StepParameters p, StepResult sr) {
         // Use this parameters wrapper for convenient access to your parameters
         GetAuthorizedTokenAndRunStepParameters sp = GetAuthorizedTokenAndRunStepParameters.initParameters(p)
-
-        // Calling logger:
-        log.info p.asMap.get('config')
-        log.info p.asMap.get('shellOfStepCommandToRun')
-        log.info p.asMap.get('stepCommandToRun')
 
         def config = context.configValues
         def algorithm =  config.asMap.get('algorithm')
@@ -440,12 +411,6 @@ class ZeroTrust extends FlowPlugin {
         // Use this parameters wrapper for convenient access to your parameters
         GenerateJWTForAAPAndLaunchAndWaitJobTemplateParameters sp = GenerateJWTForAAPAndLaunchAndWaitJobTemplateParameters.initParameters(p)
 
-        // Calling logger:
-        log.info p.asMap.get('config')
-        log.info p.asMap.get('aap_job_name')
-        log.info p.asMap.get('aap_plugin_configuration')
-        log.info p.asMap.get('checkInterval')
-        log.info p.asMap.get('dependOnResult')
         def aap_job_name = p.asMap.get('aap_job_name')
 
         def config = context.configValues
