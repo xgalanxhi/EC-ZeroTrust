@@ -432,7 +432,6 @@ class ZeroTrust extends FlowPlugin {
         Map<String, Object> updateClaims = [aap_job_name: aap_job_name, iss: issuer, iat: nowSeconds, exp: expSeconds]
         fullClaims.putAll(updateClaims)
         fullClaims = processTemplate(fullClaims, role, namespace, endpoint)
-        log.info "Claims: ${fullClaims}"
 
         String jwt = createJWT(privateKeyString, algorithm, fullClaims)
         log.trace  "Generated JWT with $algorithm: $jwt"
