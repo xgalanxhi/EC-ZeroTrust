@@ -3,7 +3,7 @@ pluginInfo:
   # Feel free to change it
   # Call pdk showdoc pluginspec to see the list of available fields and their description
   pluginName: 'EC-ZeroTrust'
-  version: '1.1.0'
+  version: '1.1.1'
   description: 'enable JWT authentication for Zero Trust implementation'
   author: 'Shaohua Wen'
   supportUrl: 'none'

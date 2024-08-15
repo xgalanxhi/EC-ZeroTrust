@@ -235,8 +235,11 @@ class ZeroTrust extends FlowPlugin {
         def algorithm =  config.asMap.get('algorithm')
         def issuer = config.asMap.get('issuer')
         def tokenLifeTime = config.asMap.get('tokenLifeTime')
+        def endpoint = config.asMap.get('endpoint')
         def privateKeyString = config.getRequiredCredential("credential").secretValue //private key
         def customClaims = config.asMap.get('customClaims')
+        def role = config.asMap.get('role')
+        def namespace = config.asMap.get('namespace')
         JsonSlurper jsonSlurper = new JsonSlurper()
         Map<String, Object> fullClaims = jsonSlurper.parseText(customClaims)
 
@@ -245,6 +248,7 @@ class ZeroTrust extends FlowPlugin {
 
         Map<String, Object> updateClaims = [iss: issuer, iat: nowSeconds, exp: expSeconds]
         fullClaims.putAll(updateClaims)
+        fullClaims = processTemplate(fullClaims, role, namespace, endpoint)
         log.info "Claims: ${fullClaims}"
 
         String jwt = createJWT(privateKeyString, algorithm, fullClaims)
