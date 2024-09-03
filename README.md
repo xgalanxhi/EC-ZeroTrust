@@ -4,9 +4,9 @@ EC-ZeroTrust
 
 
 
-Plugin version 1.1.0
+Plugin version 1.1.1
 
-Revised on Wed Jul 10 12:29:03 ICT 2024
+Revised on Tue Sep 03 13:30:00 ICT 2024
 
 
 * * *
@@ -22,8 +22,10 @@ Contents
     *   [UpdateCdroCredentialThroughJwtRequest](#updatecdrocredentialthroughjwtrequest)
     *   [getCdroCredentialAndRunStep](#getcdrocredentialandrunstep)
     *   [getAuthorizedTokenAndRunStep](#getauthorizedtokenandrunstep)
+    *   [issueJwtAndRunStep](#issuejwtandrunstep)
     *   [issueJwtAndStoreInProperty](#issuejwtandstoreinproperty)
     *   [generateJWTForAAPAndLaunchAndWaitJobTemplate](#generatejwtforaapandlaunchandwaitjobtemplate)
+    *   [generateJWTForAAPAndLaunchAndWaitJobTemplateWithSecureBody](#generatejwtforaapandlaunchandwaitjobtemplatewithsecurebody)
 *   [Use Cases](#use-cases)
     *   [1 provide identification to procedure/pipelines](#1-provide-identification-to-procedure/pipelines)
     *   [2 provide identification to external applications (e.g. AAP)](#2-provide-identification-to-external-applications-(e.g.-aap))
@@ -126,6 +128,20 @@ Get authorized token with Zero Trust JWT token authentication process, and store
 
 
 
+## issueJwtAndRunStep
+
+Issue JWT token, and stored it in the password field of a credential parameter, then pass to the next step
+
+### issueJwtAndRunStep Parameters
+
+| Parameter | Description |
+| --- | --- |
+| **Configuration Name** | Previously defined configuration for the plugin |
+| shellOfStepCommandToRun | The shell of the command to run after getting the credential, e.g. ec-groovy, default is empty<br>(note: the credential name will always be zt_credential), e.g. <br>import com.electriccloud.client.groovy.ElectricFlow<br>ElectricFlow ef = new ElectricFlow()<br>def jwtToken=ef.getFullCredential(credentialName: "zt_credential").credential.password<br> |
+| **stepCommandToRun** | The command to run after getting the credential |
+
+
+
 ## issueJwtAndStoreInProperty
 
 Issue JWT token and store in a property for later usage
@@ -144,6 +160,22 @@ Issue JWT token and store in a property for later usage
 Issue JWT token for AAP and invoke Launch And Wait Job Template procedure
 
 ### generateJWTForAAPAndLaunchAndWaitJobTemplate Parameters
+
+| Parameter | Description |
+| --- | --- |
+| **Configuration Name** | Previously defined configuration for the plugin |
+| **aap_job_name** | The ID or name of the job template to launch. |
+| **aap_plugin_configuration** | The plugin configuration for the EC-AnsibleTower Plugin |
+| checkInterval | Specifies the frequency, in seconds, to check the job status. |
+| dependOnResult | If selected, the job result is synchronized with the Ansible Tower job result. |
+
+
+
+## generateJWTForAAPAndLaunchAndWaitJobTemplateWithSecureBody
+
+Issue JWT token for AAP and invoke Launch And Wait Job Template procedure
+
+### generateJWTForAAPAndLaunchAndWaitJobTemplateWithSecureBody Parameters
 
 | Parameter | Description |
 | --- | --- |
