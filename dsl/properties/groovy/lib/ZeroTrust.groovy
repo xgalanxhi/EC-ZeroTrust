@@ -477,12 +477,100 @@ class ZeroTrust extends FlowPlugin {
         ef.createJobStep(
             jobStepName: sp.aap_job_name,
             subprocedure: 'Launch and Wait a Job Template',
-            subproject: '/plugins/EC-AnsibleTower/project',
+            subproject: '/plugins/EC-AnsibleTower4Telstra/project',
             actualParameters: args
         )
 
         sr.apply()
         log.info("step GenerateJWTForAAPAndLaunchAndWaitJobTemplate has been finished")
+    }
+
+/**
+    * generateJWTForAAPAndLaunchAndWaitJobTemplateWithSecureBody - generateJWTForAAPAndLaunchAndWaitJobTemplateWithSecureBody/generateJWTForAAPAndLaunchAndWaitJobTemplateWithSecureBody
+    * Add your code into this method and it will be called when the step runs
+    * @param config (required: true)
+    * @param aap_job_name (required: true)
+    * @param aap_plugin_configuration (required: true)
+    * @param checkInterval (required: false)
+    * @param dependOnResult (required: false)
+    */
+    def generateJWTForAAPAndLaunchAndWaitJobTemplateWithSecureBody(StepParameters p, StepResult sr) {
+        // Use this parameters wrapper for convenient access to your parameters
+        GenerateJWTForAAPAndLaunchAndWaitJobTemplateWithSecureBodyParameters sp = GenerateJWTForAAPAndLaunchAndWaitJobTemplateWithSecureBodyParameters.initParameters(p)
+
+        def aap_job_name = p.asMap.get('aap_job_name')
+
+        def config = context.configValues
+        def algorithm =  config.asMap.get('algorithm')
+        def issuer = config.asMap.get('issuer')
+        def tokenLifeTime = config.asMap.get('tokenLifeTime')
+        def endpoint = config.asMap.get('endpoint')
+        def privateKeyString = config.getRequiredCredential("credential").secretValue //private key
+        def customClaims = config.asMap.get('customClaims')
+        def role = config.asMap.get('role')
+        def namespace = config.asMap.get('namespace')
+
+        JsonSlurper jsonSlurper = new JsonSlurper()
+        Map<String, Object> fullClaims = jsonSlurper.parseText(customClaims)
+
+        long nowSeconds = System.currentTimeMillis()/1000
+        long expSeconds = nowSeconds + tokenLifeTime.toInteger()
+
+        Map<String, Object> updateClaims = [aap_job_name: aap_job_name, iss: issuer, iat: nowSeconds, exp: expSeconds]
+        fullClaims.putAll(updateClaims)
+        fullClaims = processTemplate(fullClaims, role, namespace, endpoint)
+
+        String jwt = createJWT(privateKeyString, algorithm, fullClaims)
+        log.trace  "Generated JWT with $algorithm: $jwt"
+        log.info  "JWT successfully generated."
+
+        // create dynamic job step to run the job template
+        ElectricFlow ef = FlowAPI.getEc()
+        def args = []
+        args.add (
+                new ActualParameter(
+                        actualParameterName: "id",
+                        value: aap_job_name
+                )
+        )
+        args.add (
+                new ActualParameter(
+                        actualParameterName: "config",
+                        value: config.asMap.get('aap_plugin_configuration')
+                )
+        )
+        def body_cred = new Credential(
+                        credentialName: "body_credential",
+                        password:"""{ "extra_vars": {"jwt": "$jwt"} }"""
+                )
+        args.add (
+                new ActualParameter(
+                        actualParameterName: "body_credential",
+                        value:  "body_credential"
+                )
+        )
+        args.add (
+                new ActualParameter(
+                        actualParameterName: "checkInterval",
+                        value: config.asMap.get('checkInterval')
+                )
+        )
+        args.add (
+                new ActualParameter(
+                        actualParameterName: "dependOnResult",
+                        value: config.asMap.get('dependOnResult')
+                )
+        )
+        ef.createJobStep(
+                jobStepName: sp.aap_job_name,
+                subprocedure: 'Launch and Wait a Job Template with Secure Body',
+                subproject: '/plugins/EC-AnsibleTower4Telstra/project',
+                actualParameters: args,
+                credentials: [body_cred]
+        )
+
+        sr.apply()
+        log.info("step generateJWTForAAPAndLaunchAndWaitJobTemplateWithSecureBody has been finished")
     }
 
 // === step ends ===
