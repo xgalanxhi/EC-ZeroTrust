@@ -200,6 +200,27 @@ procedures:
       label: Command To Run
 
 -
+  name: 'issueJwtAndRunStep'
+  description: 'Issue JWT token, and stored it in the password field of a credential parameter, then pass to the next step'
+  hasConfig: true
+  parameters:
+    - name: shellOfStepCommandToRun
+      documentation: |
+        The shell of the command to run after getting the credential, e.g. ec-groovy, default is empty
+        (note: the credential name will always be zt_credential), e.g. 
+        import com.electriccloud.client.groovy.ElectricFlow
+        ElectricFlow ef = new ElectricFlow()
+        def jwtToken=ef.getFullCredential(credentialName: "zt_credential").credential.password
+      required: false
+      type: entry
+      label: Shell of Command To Run
+    - name: stepCommandToRun
+      documentation: The command to run after getting the credential
+      required: true
+      type: textarea
+      label: Command To Run
+
+-
   name: 'issueJwtAndStoreInProperty'
   description: 'Issue JWT token and store in a property for later usage'
   hasConfig: true

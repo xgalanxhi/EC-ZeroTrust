@@ -573,6 +573,64 @@ class ZeroTrust extends FlowPlugin {
         log.info("step generateJWTForAAPAndLaunchAndWaitJobTemplateWithSecureBody has been finished")
     }
 
+/**
+    * issueJwtAndRunStep - issueJwtAndRunStep/issueJwtAndRunStep
+    * Add your code into this method and it will be called when the step runs
+    * @param config (required: true)
+    * @param shellOfStepCommandToRun (required: false)
+    * @param stepCommandToRun (required: true)
+    */
+    def issueJwtAndRunStep(StepParameters p, StepResult sr) {
+        // Use this parameters wrapper for convenient access to your parameters
+        IssueJwtAndRunStepParameters sp = IssueJwtAndRunStepParameters.initParameters(p)
+
+        def aap_job_name = p.asMap.get('aap_job_name')
+
+        def config = context.configValues
+        def algorithm =  config.asMap.get('algorithm')
+        def issuer = config.asMap.get('issuer')
+        def tokenLifeTime = config.asMap.get('tokenLifeTime')
+        def endpoint = config.asMap.get('endpoint')
+        def privateKeyString = config.getRequiredCredential("credential").secretValue //private key
+        def customClaims = config.asMap.get('customClaims')
+        def role = config.asMap.get('role')
+        def namespace = config.asMap.get('namespace')
+
+        JsonSlurper jsonSlurper = new JsonSlurper()
+        Map<String, Object> fullClaims = jsonSlurper.parseText(customClaims)
+
+        long nowSeconds = System.currentTimeMillis()/1000
+        long expSeconds = nowSeconds + tokenLifeTime.toInteger()
+
+        Map<String, Object> updateClaims = [aap_job_name: aap_job_name, iss: issuer, iat: nowSeconds, exp: expSeconds]
+        fullClaims.putAll(updateClaims)
+        fullClaims = processTemplate(fullClaims, role, namespace, endpoint)
+
+        String jwt = createJWT(privateKeyString, algorithm, fullClaims)
+        log.trace  "Generated JWT with $algorithm: $jwt"
+        log.info  "JWT successfully generated."
+
+        // create dynamic job step and run it with the secret passed as a parameter
+        def shellToRun = sp.shellOfStepCommandToRun ?: ""
+        def commandToRun = sp.stepCommandToRun
+
+        ElectricFlow ef = FlowAPI.getEc()
+        String password= jwt
+
+        def arg = new Credential(
+                credentialName: "zt_credential",
+                password:password
+        )
+        ef.createJobStep(
+                jobStepName: "ZeroTrust",
+                shell: shellToRun,
+                command: commandToRun,
+                credentials: [arg]
+        )
+        sr.apply()
+        log.info("step issueJwtAndRunStep has been finished")
+    }
+
 // === step ends ===
 
 }
