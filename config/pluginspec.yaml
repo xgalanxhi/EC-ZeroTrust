@@ -261,33 +261,3 @@ procedures:
       value: true
       checkedValue: true
       uncheckedValue: false
-
--
-  name: 'generateJWTForAAPAndLaunchAndWaitJobTemplateWithSecureBody'
-  description: 'Issue JWT token for AAP and invoke Launch And Wait Job Template procedure'
-  hasConfig: true
-  parameters:
-    - name: aap_job_name
-      documentation: The ID or name of the job template to launch.
-      required: true
-      type: entry
-      label: Job template name/ID
-    - name: aap_plugin_configuration
-      documentation: The plugin configuration for the EC-AnsibleTower Plugin
-      required: true
-      type: entry
-      label: EC-AnsibleTower Plugin Configuration
-    - name: checkInterval
-      documentation: 'Specifies the frequency, in seconds, to check the job status.'
-      required: false
-      type: entry
-      label: Job status polling interval
-      defaultValue: 10
-    - name: dependOnResult
-      documentation: If selected, the job result is synchronized with the Ansible Tower job result.
-      label: Depend on Ansible Tower job result?
-      required: false
-      type: checkbox
-      value: true
-      checkedValue: true
-      uncheckedValue: false
